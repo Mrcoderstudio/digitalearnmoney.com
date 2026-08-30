@@ -31,13 +31,19 @@ export async function GET() {
         email: users.email,
       })
       .from(withdrawals)
-      .leftJoin(users, eq(withdrawals.userId, users.id))
+      .leftJoin(
+        users,
+        eq(withdrawals.userId, users.id)
+      )
       .orderBy(desc(withdrawals.createdAt));
 
     return NextResponse.json(allWithdrawals);
   } catch (error) {
     console.error("Fetch withdrawals error:", error);
 
-    return NextResponse.json([]);
+    return NextResponse.json(
+      { error: "Failed to fetch withdrawals" },
+      { status: 500 }
+    );
   }
 }
