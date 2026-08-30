@@ -3,19 +3,16 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/db";
 import { withdrawals, users } from "@/db/schema";
-import { desc, eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";   // ✅ eq add kiya hai
 
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
-
     if (!session || session.user?.role !== "admin") {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    // ✅ Fetch all withdrawals with user details
     const allWithdrawals = await db
       .select({
         id: withdrawals.id,
@@ -31,19 +28,14 @@ export async function GET() {
         email: users.email,
       })
       .from(withdrawals)
-      .leftJoin(
-        users,
-        eq(withdrawals.userId, users.id)
-      )
+      .leftJoin(users, eq(withdrawals.userId, users.id))
       .orderBy(desc(withdrawals.createdAt));
 
+    // ✅ Always return an array (even if empty)
     return NextResponse.json(allWithdrawals);
   } catch (error) {
     console.error("Fetch withdrawals error:", error);
-
-    return NextResponse.json(
-      { error: "Failed to fetch withdrawals" },
-      { status: 500 }
-    );
+    // ✅ Return empty array on error
+    return NextResponse.json([]);
   }
 }
