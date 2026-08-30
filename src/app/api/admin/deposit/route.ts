@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/db";
-import { deposits, userPlans, users, transactions, plans } from "@/db/schema";
+import { deposits, users, transactions, plans } from "@/db/schema";
 import { eq, desc } from "drizzle-orm";
 
 // ✅ GET - Fetch all deposits
@@ -81,52 +81,34 @@ export async function PUT(req: Request) {
 
     console.log(`✅ Deposit ${status}ed`);
 
-    // ✅ If approved, create user plan
+    // ✅ If approved, update user balance ONLY (no auto plan)
     if (status === "approved") {
-      console.log("🔍 Creating user plan for deposit:", deposit.id);
+      console.log("🔍 Updating user balance for deposit:", deposit.id);
 
-      // ✅ Get plan details
-      const [plan] = await db
+      // ✅ Get user current balance
+      const [user] = await db
         .select()
-        .from(plans)
-        .where(eq(plans.id, deposit.planId))
+        .from(users)
+        .where(eq(users.id, deposit.userId))
         .limit(1);
 
-      if (!plan) {
-        console.error("❌ Plan not found for deposit:", deposit.planId);
-        return NextResponse.json({ error: "Plan not found" }, { status: 404 });
+      if (!user) {
+        console.error("❌ User not found for deposit:", deposit.userId);
+        return NextResponse.json({ error: "User not found" }, { status: 404 });
       }
 
-      console.log("✅ Plan found:", plan.name);
-
-      // ✅ Calculate end date
-      const endDate = new Date();
-      endDate.setDate(endDate.getDate() + plan.duration);
-
-      // ✅ Create user_plan
-      const [userPlan] = await db
-        .insert(userPlans)
-        .values({
-          userId: deposit.userId,
-          planId: deposit.planId,
-          amount: deposit.amount,
-          dailyProfit: plan.dailyProfit,
-          startDate: new Date(),
-          endDate: endDate,
-          totalEarned: "0",
-          status: "active",
-        })
-        .returning();
-
-      console.log("✅ User plan created:", userPlan.id);
-
-      // ✅ Update user total invested
+      // ✅ Update user balance (add deposit amount)
+      const newBalance = Number(user.balance) + Number(deposit.amount);
+      
       await db
         .update(users)
         .set({
-          totalInvested: deposit.amount,
+          balance: String(newBalance),
+          totalInvested: String(Number(user.totalInvested) + Number(deposit.amount)),
         })
         .where(eq(users.id, deposit.userId));
+
+      console.log(`✅ User balance updated: ${user.balance} → ${newBalance}`);
 
       // ✅ Update transaction status
       await db
