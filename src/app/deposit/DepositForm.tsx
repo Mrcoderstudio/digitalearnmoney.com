@@ -5,19 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import { Upload, AlertCircle, CheckCircle2, Loader2, Copy, Check } from "lucide-react";
 
-interface Plan {
-  id: string;
-  name: string;
-  amount: string;
-  dailyProfit: string;
-  totalProfit: string;
-}
-
-interface DepositFormProps {
-  plans: Plan[];
-}
-
-export function DepositForm({ plans }: DepositFormProps) {
+export function DepositForm() {   // ✅ Plans prop hatao
   const router = useRouter();
   const [amount, setAmount] = useState<string>("");
   const [senderName, setSenderName] = useState("");
@@ -27,9 +15,6 @@ export function DepositForm({ plans }: DepositFormProps) {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [copied, setCopied] = useState(false);
-
-  // ✅ Use first active plan as default
-  const defaultPlan = plans.length > 0 ? plans[0] : null;
 
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -58,29 +43,20 @@ export function DepositForm({ plans }: DepositFormProps) {
 
     const amountNum = parseFloat(amount);
 
-    // ✅ Validation
     if (!amountNum || amountNum < 150) {
       toast.error("Minimum deposit amount is 150 PKR");
       return;
     }
-
     if (!senderName.trim()) {
       toast.error("Please enter your sender name");
       return;
     }
-
     if (!transactionId.trim()) {
       toast.error("Please enter the transaction ID");
       return;
     }
-
     if (!screenshot) {
       toast.error("Please upload a payment screenshot");
-      return;
-    }
-
-    if (!defaultPlan) {
-      toast.error("No active plan available");
       return;
     }
 
@@ -90,7 +66,6 @@ export function DepositForm({ plans }: DepositFormProps) {
 
     try {
       console.log("📤 Submitting deposit:", {
-        planId: defaultPlan.id,
         amount: amountNum,
         senderName: senderName.trim(),
         transactionId: transactionId.trim(),
@@ -101,7 +76,6 @@ export function DepositForm({ plans }: DepositFormProps) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          planId: defaultPlan.id,
           amount: amountNum,
           paymentMethod: "easypaisa",
           senderName: senderName.trim(),
@@ -139,15 +113,13 @@ export function DepositForm({ plans }: DepositFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Error Message */}
+      {/* Error / Success messages - same as before */}
       {error && (
         <div className="p-4 rounded-2xl bg-red-950/70 border border-red-500/40 flex items-center gap-3 text-xs text-red-300">
           <AlertCircle className="w-5 h-5 text-red-400 shrink-0" />
           <span>{error}</span>
         </div>
       )}
-
-      {/* Success Message */}
       {success && (
         <div className="p-4 rounded-2xl bg-emerald-950/70 border border-emerald-500/40 flex items-center gap-3 text-xs text-emerald-300">
           <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
@@ -155,7 +127,7 @@ export function DepositForm({ plans }: DepositFormProps) {
         </div>
       )}
 
-      {/* Important Info */}
+      {/* Info Box */}
       <div className="bg-[#0a1628] p-4 rounded-xl border border-[#00D4FF]/30">
         <div className="flex items-center gap-2 text-[#FFD700] mb-2">
           <span className="text-xs font-bold">📌 Important</span>
@@ -168,7 +140,7 @@ export function DepositForm({ plans }: DepositFormProps) {
         </ul>
       </div>
 
-      {/* Step 1: Enter Amount */}
+      {/* Amount Input */}
       <div className="bg-[#0f213d] p-6 rounded-xl border border-[#1e3a66]">
         <label className="block text-xs font-bold text-slate-200 mb-2">
           1. Enter Deposit Amount
@@ -185,27 +157,20 @@ export function DepositForm({ plans }: DepositFormProps) {
             className="flex-1 px-3.5 py-2.5 rounded-xl bg-[#0a1628] border border-[#1e3a66] text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#00D4FF]"
           />
         </div>
-        <p className="mt-1 text-[10px] text-slate-500">
-          Minimum deposit: <span className="text-[#FFD700] font-bold">150 PKR</span>
-        </p>
       </div>
 
-      {/* Step 2: Easypaisa Details */}
+      {/* Easypaisa Details */}
       <div className="bg-[#0f213d] p-6 rounded-xl border border-[#1e3a66]">
         <div className="flex items-center gap-2 text-[#FFD700] mb-3">
           <span className="text-xs font-bold">💳 Easypaisa Payment Details</span>
         </div>
         <div className="space-y-3">
           <div>
-            <span className="text-[10px] uppercase text-slate-400 font-semibold block">
-              Account Name
-            </span>
+            <span className="text-[10px] uppercase text-slate-400 font-semibold block">Account Name</span>
             <p className="text-sm font-bold text-white mt-0.5">Mohammed Younas</p>
           </div>
           <div>
-            <span className="text-[10px] uppercase text-slate-400 font-semibold block">
-              Easypaisa Number
-            </span>
+            <span className="text-[10px] uppercase text-slate-400 font-semibold block">Easypaisa Number</span>
             <div className="flex items-center justify-between mt-0.5">
               <span className="text-sm font-mono font-black text-[#00D4FF]">03292993220</span>
               <button
@@ -218,21 +183,15 @@ export function DepositForm({ plans }: DepositFormProps) {
             </div>
           </div>
         </div>
-        <p className="text-[10px] text-slate-400 mt-2">
-          Send the exact amount to this Easypaisa number.
-        </p>
       </div>
 
-      {/* Step 3: Transaction Details */}
+      {/* Transaction Details */}
       <div className="bg-[#0f213d] p-6 rounded-xl border border-[#1e3a66] space-y-4">
         <label className="block text-xs font-bold text-slate-200">
           2. Enter Transfer Details
         </label>
-
         <div>
-          <label className="block text-[11px] font-semibold text-slate-400 mb-1">
-            Sender Full Name (as per Easypaisa account)
-          </label>
+          <label className="block text-[11px] font-semibold text-slate-400 mb-1">Sender Full Name</label>
           <input
             type="text"
             required
@@ -242,11 +201,8 @@ export function DepositForm({ plans }: DepositFormProps) {
             className="w-full px-3.5 py-2.5 rounded-xl bg-[#0a1628] border border-[#1e3a66] text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#00D4FF]"
           />
         </div>
-
         <div>
-          <label className="block text-[11px] font-semibold text-slate-400 mb-1">
-            Transaction ID / TID (from SMS or receipt)
-          </label>
+          <label className="block text-[11px] font-semibold text-slate-400 mb-1">Transaction ID / TID</label>
           <input
             type="text"
             required
@@ -256,41 +212,20 @@ export function DepositForm({ plans }: DepositFormProps) {
             className="w-full px-3.5 py-2.5 rounded-xl bg-[#0a1628] border border-[#1e3a66] text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#00D4FF]"
           />
         </div>
-
-        {/* Screenshot Upload */}
         <div>
-          <label className="block text-[11px] font-semibold text-slate-400 mb-1">
-            Payment Screenshot
-          </label>
+          <label className="block text-[11px] font-semibold text-slate-400 mb-1">Payment Screenshot</label>
           <div className="mt-1 flex flex-col items-center justify-center p-5 border-2 border-dashed border-[#1e3a66] hover:border-[#00D4FF]/50 rounded-2xl bg-[#0a1628]/60 transition-colors relative">
             {screenshot ? (
               <div className="w-full flex flex-col items-center space-y-2">
-                <img
-                  src={screenshot}
-                  alt="Receipt Preview"
-                  className="max-h-48 rounded-xl object-contain border border-[#1e3a66]"
-                />
-                <button
-                  type="button"
-                  onClick={() => setScreenshot("")}
-                  className="text-xs text-red-400 hover:underline"
-                >
-                  Remove Image
-                </button>
+                <img src={screenshot} alt="Receipt Preview" className="max-h-48 rounded-xl object-contain border border-[#1e3a66]" />
+                <button type="button" onClick={() => setScreenshot("")} className="text-xs text-red-400 hover:underline">Remove Image</button>
               </div>
             ) : (
               <label className="cursor-pointer flex flex-col items-center gap-2">
                 <Upload className="w-6 h-6 text-[#00D4FF]" />
-                <span className="text-xs text-slate-300 font-semibold">
-                  Click to upload screenshot
-                </span>
+                <span className="text-xs text-slate-300 font-semibold">Click to upload screenshot</span>
                 <span className="text-[10px] text-slate-500">PNG, JPG up to 5MB</span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  className="hidden"
-                />
+                <input type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
               </label>
             )}
           </div>
