@@ -12,16 +12,10 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    console.log("📥 Deposit request received:", {
-      amount: body.amount,
-      hasScreenshot: !!body.screenshot,
-      senderName: body.senderName,
-      transactionId: body.transactionId,
-    });
+    console.log("📥 Deposit request received:", body);
 
     const { amount, paymentMethod, senderName, transactionId, screenshot } = body;
 
-    // ✅ Validation
     if (!screenshot) {
       return NextResponse.json({ error: "Screenshot is required" }, { status: 400 });
     }
@@ -34,7 +28,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Minimum deposit amount is 150 PKR" }, { status: 400 });
     }
 
-    // ✅ Create deposit (no planId required)
+    // ✅ Insert deposit (no planId)
     const [deposit] = await db
       .insert(deposits)
       .values({
@@ -45,13 +39,13 @@ export async function POST(req: Request) {
         senderName: senderName,
         transactionId: transactionId,
         status: "pending",
-        // planId: null or omit if column not required
+        // planId: null   // if column exists, set null; else omit
       })
       .returning();
 
     console.log("✅ Deposit created with ID:", deposit.id);
 
-    // ✅ Create transaction
+    // ✅ Create transaction record
     await db.insert(transactions).values({
       userId: session.user.id,
       type: "deposit",
@@ -60,8 +54,6 @@ export async function POST(req: Request) {
       status: "pending",
       referenceId: deposit.id,
     });
-
-    console.log("✅ Transaction created");
 
     return NextResponse.json({
       success: true,
