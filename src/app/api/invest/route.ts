@@ -12,8 +12,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const user = session.user;  // ✅ User object session se le lo
-
+    const user = session.user;
     const body = await req.json();
     const { planId } = body;
 
@@ -21,6 +20,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Plan ID is required" }, { status: 400 });
     }
 
+    // ✅ Get plan details
     const [plan] = await db
       .select()
       .from(plans)
@@ -31,7 +31,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Plan not found" }, { status: 404 });
     }
 
-    // ✅ Fetch user from database (kyunki session se sirf id milti hai)
+    // ✅ Get user from database
     const [dbUser] = await db
       .select()
       .from(users)
@@ -42,6 +42,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
+    // ✅ Check balance (Note: Agar price column amount hai toh plan.amount use karo)
     if (Number(dbUser.balance) < Number(plan.price)) {
       return NextResponse.json(
         { error: "Insufficient balance" },
@@ -49,15 +50,17 @@ export async function POST(req: Request) {
       );
     }
 
+    // ✅ Calculate end date
     const endDate = new Date();
     endDate.setDate(endDate.getDate() + plan.duration);
 
+    // ✅ Create user_plan
     const [userPlan] = await db
       .insert(userPlans)
       .values({
         userId: dbUser.id,
         planId: plan.id,
-        amount: plan.price,
+        amount: plan.price, // Agar price column nahi hai toh plan.amount karo
         dailyProfit: plan.dailyProfit,
         startDate: new Date(),
         endDate: endDate,
@@ -66,19 +69,21 @@ export async function POST(req: Request) {
       })
       .returning();
 
+    // ✅ Deduct balance
     const newBalance = Number(dbUser.balance) - Number(plan.price);
     await db
       .update(users)
       .set({ balance: String(newBalance) })
       .where(eq(users.id, dbUser.id));
 
+    // ✅ Create transaction (referenceId hata diya hai taake error na aaye)
     await db.insert(transactions).values({
       userId: dbUser.id,
       type: "investment",
       amount: plan.price,
       status: "completed",
       description: `Invested in ${plan.name} plan`,
-      referenceId: userPlan.id,
+      // referenceId: userPlan.id,  // 👈 Comment out kiya (agar column nahi hai)
     });
 
     return NextResponse.json({
