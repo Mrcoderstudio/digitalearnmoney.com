@@ -33,7 +33,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Minimum deposit amount is 150 PKR" }, { status: 400 });
     }
 
-    // ✅ Create deposit (planId field omitted — database will use default NULL)
+    // ✅ Insert deposit - NO planId field
     const [deposit] = await db
       .insert(deposits)
       .values({
@@ -44,7 +44,7 @@ export async function POST(req: Request) {
         senderName: senderName,
         transactionId: transactionId,
         status: "pending",
-        // planId is omitted — this is fine because the column is nullable in DB
+        // planId is NOT included - database will use default NULL
       })
       .returning();
 
