@@ -12,13 +12,6 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    console.log("📥 Deposit request received:", {
-      amount: body.amount,
-      hasScreenshot: !!body.screenshot,
-      senderName: body.senderName,
-      transactionId: body.transactionId,
-    });
-
     const { amount, paymentMethod, senderName, transactionId, screenshot } = body;
 
     if (!screenshot) {
@@ -33,7 +26,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Minimum deposit amount is 150 PKR" }, { status: 400 });
     }
 
-    // ✅ Insert deposit - NO planId field
+    // ✅ Insert deposit (planId omitted)
     const [deposit] = await db
       .insert(deposits)
       .values({
@@ -44,11 +37,8 @@ export async function POST(req: Request) {
         senderName: senderName,
         transactionId: transactionId,
         status: "pending",
-        // planId is NOT included - database will use default NULL
       })
       .returning();
-
-    console.log("✅ Deposit created with ID:", deposit.id);
 
     await db.insert(transactions).values({
       userId: session.user.id,
