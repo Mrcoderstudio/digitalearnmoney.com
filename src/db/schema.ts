@@ -64,12 +64,12 @@ export const userPlans = pgTable("user_plans", {
 });
 
 // ============================================
-// DEPOSITS TABLE (Only Easypaisa)
+// DEPOSITS TABLE (✅ planId now nullable)
 // ============================================
 export const deposits = pgTable("deposits", {
   id: uuid("id").primaryKey().defaultRandom(),
   userId: uuid("user_id").references(() => users.id).notNull(),
-  planId: uuid("plan_id").references(() => plans.id).notNull(),
+  planId: uuid("plan_id").references(() => plans.id), // ✅ .notNull() REMOVED
   amount: numeric("amount", { precision: 20, scale: 2 }).notNull(),
   screenshot: text("screenshot").notNull(),
   transactionId: varchar("transaction_id", { length: 100 }).notNull(),
@@ -138,7 +138,7 @@ export const transactions = pgTable("transactions", {
 });
 
 // ============================================
-// SETTINGS TABLE (Easypaisa Account Details + WhatsApp)
+// SETTINGS TABLE
 // ============================================
 export const settings = pgTable("settings", {
   id: uuid("id").primaryKey().defaultRandom(),
