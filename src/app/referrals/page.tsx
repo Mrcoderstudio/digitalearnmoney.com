@@ -1,140 +1,138 @@
-import { getSession } from "@/lib/auth";
-import { db } from "@/db";
-import { users, referrals } from "@/db/schema";
-import { eq, desc } from "drizzle-orm";
+"use client";
+
+import React, { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 import { UserShell } from "@/components/user/UserShell";
-import Link from "next/link";
-import { formatDistanceToNow } from "date-fns";
-import { ReferralShare } from "@/components/referral/ReferralShare";
+import { Copy, Check, Users, Gift, TrendingUp } from "lucide-react";
+import { toast } from "react-hot-toast";
 
-export default async function ReferralsPage() {
-  const session = await getSession();
+interface ReferralData {
+  level1Count: number;
+  level2Count: number;
+  level1Bonus: number;
+  level2Bonus: number;
+  totalBonus: number;
+  referralLink: string;
+}
 
-  if (!session || !session.user) {
+export default function ReferralsPage() {
+  const { data: session } = useSession();
+  const [data, setData] = useState<ReferralData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/referral")
+      .then((res) => res.json())
+      .then((data) => {
+        setData(data);
+        setLoading(false);
+      })
+      .catch(() => {
+        setLoading(false);
+      });
+  }, []);
+
+  const handleCopy = () => {
+    if (data?.referralLink) {
+      navigator.clipboard.writeText(data.referralLink);
+      setCopied(true);
+      toast.success("Referral link copied!");
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  if (loading) {
     return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <div className="text-center">
-          <p className="text-red-500">Please login first</p>
-          <Link href="/login" className="mt-4 inline-block text-[#00D4FF] hover:underline">
-            Go to Login →
-          </Link>
+      <UserShell username={session?.user?.username || "User"}>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center">
+            <div className="text-2xl mb-2">⏳</div>
+            <p className="text-slate-400">Loading referral data...</p>
+          </div>
         </div>
-      </div>
+      </UserShell>
     );
   }
 
-  const [user] = await db
-    .select()
-    .from(users)
-    .where(eq(users.id, session.user.id))
-    .limit(1);
-
-  const userReferrals = await db
-    .select({
-      id: referrals.id,
-      referredId: referrals.referredId,
-      level: referrals.level,
-      commission: referrals.commission,
-      status: referrals.status,
-      paidAt: referrals.paidAt,
-      createdAt: referrals.createdAt,
-      username: users.username,
-      email: users.email,
-    })
-    .from(referrals)
-    .leftJoin(users, eq(referrals.referredId, users.id))
-    .where(eq(referrals.referrerId, session.user.id))
-    .orderBy(desc(referrals.createdAt));
-
-  const totalCommission = userReferrals.reduce(
-    (sum, ref) => sum + Number(ref.commission),
-    0
-  );
-
-  const content = (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-white">Referrals</h1>
-        <p className="text-sm text-gray-400">
-          Invite friends and earn commission on their deposits
-        </p>
-      </div>
-
-      {/* Referral Stats */}
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-        <div className="rounded-xl border border-[#1e3a66] bg-[#0f213d] p-4 text-center">
-          <p className="text-xs text-gray-400">Total Referrals</p>
-          <p className="text-xl font-bold text-white">{userReferrals.length}</p>
+  return (
+    <UserShell username={session?.user?.username || "User"}>
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex items-center gap-3">
+          <Gift className="w-6 h-6 text-[#FFD700]" />
+          <div>
+            <h1 className="text-2xl font-bold text-white">Referrals</h1>
+            <p className="text-xs text-slate-400">Invite friends and earn bonuses</p>
+          </div>
         </div>
-        <div className="rounded-xl border border-[#1e3a66] bg-[#0f213d] p-4 text-center">
-          <p className="text-xs text-gray-400">Total Commission</p>
-          <p className="text-xl font-bold text-[#00D4FF]">
-            {totalCommission.toFixed(0)} PKR
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+          <div className="bg-[#0f213d] p-4 rounded-xl border border-[#1e3a66]">
+            <p className="text-xs text-slate-400">Level 1</p>
+            <p className="text-xl font-bold text-white">{data?.level1Count || 0}</p>
+            <p className="text-[10px] text-emerald-400">10% bonus</p>
+          </div>
+          <div className="bg-[#0f213d] p-4 rounded-xl border border-[#1e3a66]">
+            <p className="text-xs text-slate-400">Level 2</p>
+            <p className="text-xl font-bold text-white">{data?.level2Count || 0}</p>
+            <p className="text-[10px] text-emerald-400">2% bonus</p>
+          </div>
+          <div className="bg-[#0f213d] p-4 rounded-xl border border-[#1e3a66]">
+            <p className="text-xs text-slate-400">Total Earned</p>
+            <p className="text-xl font-bold text-[#FFD700]">
+              PKR {data?.totalBonus?.toLocaleString() || 0}
+            </p>
+          </div>
+        </div>
+
+        {/* Referral Link */}
+        <div className="bg-[#0f213d] p-6 rounded-xl border border-[#1e3a66] space-y-4">
+          <h3 className="text-sm font-bold text-white">Your Referral Link</h3>
+          <div className="flex items-center gap-3">
+            <input
+              type="text"
+              readOnly
+              value={data?.referralLink || ""}
+              className="flex-1 px-4 py-2.5 rounded-xl bg-[#0a1628] border border-[#1e3a66] text-xs text-white placeholder-slate-500 focus:outline-none"
+            />
+            <button
+              onClick={handleCopy}
+              className="px-4 py-2.5 rounded-xl bg-[#00D4FF] text-[#0a1628] font-bold text-xs hover:bg-cyan-300 transition-colors flex items-center gap-2"
+            >
+              {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+              {copied ? "Copied!" : "Copy"}
+            </button>
+          </div>
+          <p className="text-[10px] text-slate-400">
+            Share this link with your friends. When they deposit, you earn 10% (Level 1) and 2% (Level 2)!
           </p>
         </div>
-        <div className="rounded-xl border border-[#1e3a66] bg-[#0f213d] p-4 text-center">
-          <p className="text-xs text-gray-400">Commission Rate</p>
-          <p className="text-xl font-bold text-[#FFD700]">10%</p>
+
+        {/* How it works */}
+        <div className="bg-[#0f213d] p-6 rounded-xl border border-[#1e3a66] space-y-3">
+          <h3 className="text-sm font-bold text-white">How it Works</h3>
+          <ul className="space-y-2 text-xs text-slate-300">
+            <li className="flex items-start gap-2">
+              <span className="text-[#00D4FF]">1.</span>
+              <span>Share your referral link with friends</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-[#00D4FF]">2.</span>
+              <span>They register using your link</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-[#00D4FF]">3.</span>
+              <span>When they deposit, you get <span className="text-[#FFD700]">10%</span> bonus (Level 1)</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-[#00D4FF]">4.</span>
+              <span>If your referred friend refers someone, you get <span className="text-[#FFD700]">2%</span> bonus (Level 2)</span>
+            </li>
+          </ul>
         </div>
       </div>
-
-      {/* Referral Link - Using Client Component */}
-      <ReferralShare referralCode={user.referralCode} />
-
-      {/* Referral History */}
-      <div className="rounded-xl border border-[#1e3a66] bg-[#0f213d] overflow-hidden">
-        <div className="px-4 py-3 border-b border-[#1e3a66]">
-          <h3 className="text-sm font-semibold text-white">Referral History</h3>
-        </div>
-        {userReferrals.length === 0 ? (
-          <div className="px-4 py-8 text-center text-gray-400 text-sm">
-            No referrals yet. Share your referral link to start earning!
-          </div>
-        ) : (
-          <table className="w-full text-sm">
-            <thead className="border-b border-[#1e3a66] bg-[#0a1628]">
-              <tr>
-                <th className="px-4 py-3 text-left text-slate-400">User</th>
-                <th className="px-4 py-3 text-left text-slate-400">Level</th>
-                <th className="px-4 py-3 text-right text-slate-400">Commission</th>
-                <th className="px-4 py-3 text-right text-slate-400">Status</th>
-                <th className="px-4 py-3 text-right text-slate-400">Date</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#1e3a66]/50">
-              {userReferrals.map((ref) => (
-                <tr key={ref.id} className="hover:bg-white/5">
-                  <td className="px-4 py-3 text-white">
-                    {ref.username || "Unknown"}
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className="rounded-full bg-[#00D4FF]/10 px-2 py-1 text-xs font-semibold text-[#00D4FF]">
-                      Level {ref.level}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-right text-[#FFD700]">
-                    {Number(ref.commission).toFixed(0)} PKR
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <span className={`rounded-full px-2 py-1 text-xs font-semibold ${
-                      ref.status === "paid"
-                        ? "bg-green-500/20 text-green-500"
-                        : "bg-yellow-500/20 text-yellow-500"
-                    }`}>
-                      {ref.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-right text-sm text-slate-400">
-                    {formatDistanceToNow(new Date(ref.createdAt), { addSuffix: true })}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
-    </div>
+    </UserShell>
   );
-
-  return <UserShell username={session.user.username}>{content}</UserShell>;
 }
