@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import { Upload, AlertCircle, CheckCircle2, Loader2, Copy, Check } from "lucide-react";
 
-export function DepositForm() {   // ✅ Plans prop hatao
+export function DepositForm() {
   const router = useRouter();
   const [amount, setAmount] = useState<string>("");
   const [senderName, setSenderName] = useState("");
@@ -42,7 +42,6 @@ export function DepositForm() {   // ✅ Plans prop hatao
     e.preventDefault();
 
     const amountNum = parseFloat(amount);
-
     if (!amountNum || amountNum < 150) {
       toast.error("Minimum deposit amount is 150 PKR");
       return;
@@ -65,13 +64,7 @@ export function DepositForm() {   // ✅ Plans prop hatao
     setSuccess("");
 
     try {
-      console.log("📤 Submitting deposit:", {
-        amount: amountNum,
-        senderName: senderName.trim(),
-        transactionId: transactionId.trim(),
-        screenshotLength: screenshot.length,
-      });
-
+      console.log("📤 Submitting deposit:", { amount: amountNum, senderName, transactionId });
       const res = await fetch("/api/deposit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -85,7 +78,7 @@ export function DepositForm() {   // ✅ Plans prop hatao
       });
 
       const data = await res.json();
-      console.log("📥 Deposit response:", { ok: res.ok, status: res.status, data });
+      console.log("📥 Deposit response:", data);
 
       if (!res.ok) {
         toast.error(data.error || "Deposit submission failed");
@@ -113,7 +106,6 @@ export function DepositForm() {   // ✅ Plans prop hatao
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Error / Success messages - same as before */}
       {error && (
         <div className="p-4 rounded-2xl bg-red-950/70 border border-red-500/40 flex items-center gap-3 text-xs text-red-300">
           <AlertCircle className="w-5 h-5 text-red-400 shrink-0" />
@@ -127,7 +119,6 @@ export function DepositForm() {   // ✅ Plans prop hatao
         </div>
       )}
 
-      {/* Info Box */}
       <div className="bg-[#0a1628] p-4 rounded-xl border border-[#00D4FF]/30">
         <div className="flex items-center gap-2 text-[#FFD700] mb-2">
           <span className="text-xs font-bold">📌 Important</span>
@@ -140,11 +131,8 @@ export function DepositForm() {   // ✅ Plans prop hatao
         </ul>
       </div>
 
-      {/* Amount Input */}
       <div className="bg-[#0f213d] p-6 rounded-xl border border-[#1e3a66]">
-        <label className="block text-xs font-bold text-slate-200 mb-2">
-          1. Enter Deposit Amount
-        </label>
+        <label className="block text-xs font-bold text-slate-200 mb-2">1. Enter Deposit Amount</label>
         <div className="flex items-center gap-3">
           <span className="text-sm font-bold text-white">PKR</span>
           <input
@@ -159,7 +147,6 @@ export function DepositForm() {   // ✅ Plans prop hatao
         </div>
       </div>
 
-      {/* Easypaisa Details */}
       <div className="bg-[#0f213d] p-6 rounded-xl border border-[#1e3a66]">
         <div className="flex items-center gap-2 text-[#FFD700] mb-3">
           <span className="text-xs font-bold">💳 Easypaisa Payment Details</span>
@@ -185,11 +172,8 @@ export function DepositForm() {   // ✅ Plans prop hatao
         </div>
       </div>
 
-      {/* Transaction Details */}
       <div className="bg-[#0f213d] p-6 rounded-xl border border-[#1e3a66] space-y-4">
-        <label className="block text-xs font-bold text-slate-200">
-          2. Enter Transfer Details
-        </label>
+        <label className="block text-xs font-bold text-slate-200">2. Enter Transfer Details</label>
         <div>
           <label className="block text-[11px] font-semibold text-slate-400 mb-1">Sender Full Name</label>
           <input
@@ -243,9 +227,7 @@ export function DepositForm() {   // ✅ Plans prop hatao
             <span>Submitting...</span>
           </>
         ) : (
-          <>
-            <span>Submit Deposit of PKR {amount ? Number(amount).toLocaleString() : "0"}</span>
-          </>
+          <span>Submit Deposit of PKR {amount ? Number(amount).toLocaleString() : "0"}</span>
         )}
       </button>
     </form>
