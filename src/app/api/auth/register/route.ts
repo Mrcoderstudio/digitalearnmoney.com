@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/db";
-import { users } from "@/db/schema";
-import { eq, or } from "drizzle-orm";
+import { users, referrals, transactions, settings } from "@/db/schema";
+import { eq, or, sql } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 
@@ -56,16 +56,32 @@ export async function POST(req: Request) {
     }
 
     let referredById: string | null = null;
+    let referralBonus = 0;
+
+    // ✅ Handle referral code
     if (referralCode && referralCode.trim() !== "") {
       const cleanRef = referralCode.trim().toUpperCase();
-      const referrer = await db
+      const [referrer] = await db
         .select({ id: users.id })
         .from(users)
         .where(eq(users.referralCode, cleanRef))
         .limit(1);
 
-      if (referrer.length > 0) {
-        referredById = referrer[0].id;
+      if (referrer) {
+        referredById = referrer.id;
+
+        // ✅ Get referral bonus from settings
+        const [settingsData] = await db
+          .select({ referralLevels: settings.referralLevels })
+          .from(settings)
+          .limit(1);
+
+        if (settingsData && settingsData.referralLevels) {
+          const levels = settingsData.referralLevels as any;
+          referralBonus = levels.level1 || 10;
+        } else {
+          referralBonus = 10; // default
+        }
       } else {
         return NextResponse.json({ error: "Invalid referral code" }, { status: 400 });
       }
@@ -91,6 +107,7 @@ export async function POST(req: Request) {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // ✅ Create user
     const [newUser] = await db
       .insert(users)
       .values({
@@ -111,6 +128,37 @@ export async function POST(req: Request) {
         email: users.email,
         referralCode: users.referralCode,
       });
+
+    // ✅ If referred by someone, create referral record and add bonus
+    if (referredById && referralBonus > 0) {
+      // Insert referral
+      await db.insert(referrals).values({
+        referrerId: referredById,
+        referredId: newUser.id,
+        level: 1,
+        commission: referralBonus.toString(),
+        status: "completed",
+      });
+
+      // ✅ Add bonus to referrer's balance and totalEarned
+      await db
+        .update(users)
+        .set({
+          balance: sql`${users.balance} + ${referralBonus}`,
+          totalEarned: sql`${users.totalEarned} + ${referralBonus}`,
+        })
+        .where(eq(users.id, referredById));
+
+      // ✅ Insert transaction for bonus
+      await db.insert(transactions).values({
+        userId: referredById,
+        type: "referral",
+        amount: referralBonus.toString(),
+        description: `Referral bonus for ${newUser.username}`,
+        status: "completed",
+        referenceId: newUser.id,
+      });
+    }
 
     return NextResponse.json({
       message: "Account created successfully",
