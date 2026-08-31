@@ -51,13 +51,11 @@ export async function PUT(req: Request) {
     const body = await req.json();
     const { depositId, status } = body;
 
-    console.log(`📥 Admin ${status}ing deposit:`, depositId);
-
     if (!depositId) {
       return NextResponse.json({ error: "Deposit ID is required" }, { status: 400 });
     }
 
-    // ✅ Get deposit with plan details
+    // ✅ Get deposit
     const [deposit] = await db
       .select()
       .from(deposits)
@@ -68,8 +66,6 @@ export async function PUT(req: Request) {
       return NextResponse.json({ error: "Deposit not found" }, { status: 404 });
     }
 
-    console.log("✅ Deposit found:", deposit.id, "Status:", deposit.status);
-
     // ✅ Update deposit status
     await db
       .update(deposits)
@@ -79,12 +75,8 @@ export async function PUT(req: Request) {
       })
       .where(eq(deposits.id, depositId));
 
-    console.log(`✅ Deposit ${status}ed`);
-
-    // ✅ If approved, update user balance ONLY (no auto plan)
+    // ✅ If approved, SIRF BALANCE UPDATE KARO (Auto plan mat banao)
     if (status === "approved") {
-      console.log("🔍 Updating user balance for deposit:", deposit.id);
-
       // ✅ Get user current balance
       const [user] = await db
         .select()
@@ -93,24 +85,25 @@ export async function PUT(req: Request) {
         .limit(1);
 
       if (!user) {
-        console.error("❌ User not found for deposit:", deposit.userId);
+        console.error("❌ User not found");
         return NextResponse.json({ error: "User not found" }, { status: 404 });
       }
 
-      // ✅ Update user balance (add deposit amount)
+      // ✅ Balance aur Total Invested add karo
       const newBalance = Number(user.balance) + Number(deposit.amount);
+      const newTotalInvested = Number(user.totalInvested) + Number(deposit.amount);
       
       await db
         .update(users)
         .set({
           balance: String(newBalance),
-          totalInvested: String(Number(user.totalInvested) + Number(deposit.amount)),
+          totalInvested: String(newTotalInvested),
         })
         .where(eq(users.id, deposit.userId));
 
-      console.log(`✅ User balance updated: ${user.balance} → ${newBalance}`);
+      console.log(`✅ Balance updated: ${user.balance} → ${newBalance}`);
 
-      // ✅ Update transaction status
+      // ✅ Transaction update karo
       await db
         .update(transactions)
         .set({
@@ -118,8 +111,6 @@ export async function PUT(req: Request) {
           description: `Deposit approved - ${deposit.amount} PKR`,
         })
         .where(eq(transactions.referenceId, depositId));
-
-      console.log("✅ All updates completed for deposit:", depositId);
     }
 
     return NextResponse.json({ success: true });
