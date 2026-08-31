@@ -1,31 +1,27 @@
 import { NextResponse } from "next/server";
-import { getSession } from "@/lib/auth";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { db } from "@/db";
-import { deposits, plans, transactions } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { deposits, transactions } from "@/db/schema";
 
 export async function POST(req: Request) {
   try {
-    const session = await getSession();
+    const session = await getServerSession(authOptions);
     if (!session || !session.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const body = await req.json();
     console.log("📥 Deposit request received:", {
-      planId: body.planId,
       amount: body.amount,
       hasScreenshot: !!body.screenshot,
       senderName: body.senderName,
       transactionId: body.transactionId,
     });
 
-    const { planId, amount, paymentMethod, senderName, transactionId, screenshot } = body;
+    const { amount, paymentMethod, senderName, transactionId, screenshot } = body;
 
     // ✅ Validation
-    if (!planId) {
-      return NextResponse.json({ error: "Plan ID is required" }, { status: 400 });
-    }
     if (!screenshot) {
       return NextResponse.json({ error: "Screenshot is required" }, { status: 400 });
     }
@@ -38,35 +34,18 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Minimum deposit amount is 150 PKR" }, { status: 400 });
     }
 
-    // ✅ Get plan
-    const [plan] = await db
-      .select()
-      .from(plans)
-      .where(eq(plans.id, planId))
-      .limit(1);
-
-    if (!plan) {
-      return NextResponse.json({ error: "Invalid plan selected" }, { status: 400 });
-    }
-
-    if (!plan.isActive) {
-      return NextResponse.json({ error: "This plan is currently inactive" }, { status: 400 });
-    }
-
-    console.log("✅ Plan found:", plan.name);
-
-    // ✅ Create deposit
+    // ✅ Create deposit (no planId required)
     const [deposit] = await db
       .insert(deposits)
       .values({
         userId: session.user.id,
-        planId: plan.id,
         amount: amountNum.toString(),
         screenshot: screenshot,
         paymentMethod: paymentMethod || "easypaisa",
         senderName: senderName,
         transactionId: transactionId,
         status: "pending",
+        // planId: null or omit if column not required
       })
       .returning();
 
