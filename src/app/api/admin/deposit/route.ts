@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/db";
 import { deposits, users, transactions, plans, referrals, settings } from "@/db/schema";
-import { eq, desc, sql } from "drizzle-orm";
+import { eq, desc, sql, and } from "drizzle-orm";
 
 export async function GET() {
   try {
@@ -164,10 +164,10 @@ async function processReferralBonuses(userId: string, depositAmount: number) {
         amount: level1Bonus.toString(),
         description: `Level 1 referral bonus (${level1Percent}%) from deposit of ${depositAmount} PKR`,
         status: "completed",
-        referenceId: userId, // reference to the user who deposited
+        referenceId: userId,
       });
 
-      // Update referral record status if needed (mark as completed)
+      // Update referral record status
       await db
         .update(referrals)
         .set({ status: "completed" })
@@ -182,7 +182,6 @@ async function processReferralBonuses(userId: string, depositAmount: number) {
     }
 
     // ----- Level 2 Referral Bonus -----
-    // Get level 2 referrer (referrer of the referrer)
     const [referrer] = await db
       .select({ referredBy: users.referredBy })
       .from(users)
@@ -211,7 +210,7 @@ async function processReferralBonuses(userId: string, depositAmount: number) {
           referenceId: userId,
         });
 
-        // Update referral record (level 2) if exists
+        // Update referral record (level 2)
         await db
           .update(referrals)
           .set({ status: "completed" })
@@ -227,6 +226,5 @@ async function processReferralBonuses(userId: string, depositAmount: number) {
     }
   } catch (error) {
     console.error("❌ Referral bonus error:", error);
-    // Don't throw to avoid failing deposit approval
   }
 }
