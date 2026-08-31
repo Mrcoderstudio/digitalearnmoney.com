@@ -80,7 +80,7 @@ export async function POST(req: Request) {
           const levels = settingsData.referralLevels as any;
           referralBonus = levels.level1 || 10;
         } else {
-          referralBonus = 10; // default
+          referralBonus = 10;
         }
       } else {
         return NextResponse.json({ error: "Invalid referral code" }, { status: 400 });
@@ -129,34 +129,14 @@ export async function POST(req: Request) {
         referralCode: users.referralCode,
       });
 
-    // ✅ If referred by someone, create referral record and add bonus
-    if (referredById && referralBonus > 0) {
-      // Insert referral
+    // ✅ If referred by someone, create referral record with pending status
+    if (referredById) {
       await db.insert(referrals).values({
         referrerId: referredById,
         referredId: newUser.id,
         level: 1,
-        commission: referralBonus.toString(),
-        status: "completed",
-      });
-
-      // ✅ Add bonus to referrer's balance and totalEarned
-      await db
-        .update(users)
-        .set({
-          balance: sql`${users.balance} + ${referralBonus}`,
-          totalEarned: sql`${users.totalEarned} + ${referralBonus}`,
-        })
-        .where(eq(users.id, referredById));
-
-      // ✅ Insert transaction for bonus
-      await db.insert(transactions).values({
-        userId: referredById,
-        type: "referral",
-        amount: referralBonus.toString(),
-        description: `Referral bonus for ${newUser.username}`,
-        status: "completed",
-        referenceId: newUser.id,
+        commission: "0.00", // Bonus will be calculated on deposit
+        status: "pending", // ✅ pending until first deposit
       });
     }
 
