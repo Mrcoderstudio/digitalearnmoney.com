@@ -74,7 +74,7 @@ export async function PUT(req: Request) {
     if (status === "approved") {
       const depositAmount = Number(deposit.amount);
 
-      // 1. Update user balance
+      // 1. Update user balance (ONLY balance, NOT totalInvested)
       const [user] = await db
         .select()
         .from(users)
@@ -89,7 +89,7 @@ export async function PUT(req: Request) {
         .update(users)
         .set({
           balance: String(newBalance),
-          totalInvested: String(Number(user.totalInvested) + depositAmount),
+          // ✅ totalInvested is NOT updated here — it's only updated when a plan is purchased
         })
         .where(eq(users.id, deposit.userId));
 
@@ -227,4 +227,4 @@ async function processReferralBonuses(userId: string, depositAmount: number) {
   } catch (error) {
     console.error("❌ Referral bonus error:", error);
   }
-}
+        }
