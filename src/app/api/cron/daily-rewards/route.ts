@@ -3,30 +3,43 @@ import { db } from "@/db";
 import { users, userPlans, rewards, transactions } from "@/db/schema";
 import { eq, and, lt, gte, sql } from "drizzle-orm";
 
-// ✅ GET method for manual testing (browser)
 export async function GET(req: Request) {
   return processRewards(req);
 }
 
-// ✅ POST method for Vercel Cron Jobs
 export async function POST(req: Request) {
   return processRewards(req);
 }
 
 async function processRewards(req: Request) {
   try {
-    // ✅ Security: Check cron secret (optional)
+    // 🔒 Security check (for production)
     const authHeader = req.headers.get("authorization");
     const cronSecret = process.env.CRON_SECRET;
+    const isDev = process.env.NODE_ENV === "development";
 
-    if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+    if (!isDev && cronSecret && authHeader !== `Bearer ${cronSecret}`) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const today = new Date();
-    const todayStr = today.toISOString().split("T")[0]; // "2026-08-31"
+    const todayStr = today.toISOString().split("T")[0]; // "2026-09-03"
 
-    // Get all active user plans where endDate >= today
+    // ✅ 1. Expire plans jinki endDate < today
+    const expiredPlans = await db
+      .update(userPlans)
+      .set({ status: "completed" })
+      .where(
+        and(
+          eq(userPlans.status, "active"),
+          lt(userPlans.endDate, today)
+        )
+      )
+      .returning({ id: userPlans.id });
+
+    console.log(`⏰ Expired ${expiredPlans.length} plans.`);
+
+    // ✅ 2. Get all active plans (endDate >= today)
     const activePlans = await db
       .select()
       .from(userPlans)
@@ -40,7 +53,7 @@ async function processRewards(req: Request) {
     let creditedCount = 0;
 
     for (const plan of activePlans) {
-      // Check if reward already credited today for this plan
+      // ✅ 3. Check if reward already credited today (prevent duplicate)
       const existingReward = await db
         .select()
         .from(rewards)
@@ -52,12 +65,14 @@ async function processRewards(req: Request) {
         )
         .limit(1);
 
-      if (existingReward.length > 0) continue;
+      if (existingReward.length > 0) {
+        console.log(`⏩ Reward already credited for plan ${plan.id} today.`);
+        continue;
+      }
 
-      // Credit daily profit
       const profitAmount = Number(plan.dailyProfit);
 
-      // Update user balance and total_earned
+      // ✅ 4. Credit reward to user
       await db
         .update(users)
         .set({
@@ -66,7 +81,7 @@ async function processRewards(req: Request) {
         })
         .where(eq(users.id, plan.userId));
 
-      // Update user_plan total_earned
+      // ✅ 5. Update plan's total earned
       await db
         .update(userPlans)
         .set({
@@ -74,7 +89,7 @@ async function processRewards(req: Request) {
         })
         .where(eq(userPlans.id, plan.id));
 
-      // Create reward entry
+      // ✅ 6. Insert reward record
       await db.insert(rewards).values({
         userId: plan.userId,
         userPlanId: plan.id,
@@ -83,12 +98,12 @@ async function processRewards(req: Request) {
         status: "credited",
       });
 
-      // Create transaction record
+      // ✅ 7. Insert transaction
       await db.insert(transactions).values({
         userId: plan.userId,
         type: "reward",
         amount: profitAmount.toString(),
-        description: `Daily reward for ${plan.amount} PKR plan`,
+        description: `Daily profit for ${plan.amount} PKR plan`,
         status: "completed",
         referenceId: plan.id,
       });
@@ -96,24 +111,14 @@ async function processRewards(req: Request) {
       creditedCount++;
     }
 
-    // Mark expired plans as completed (endDate < today)
-    await db
-      .update(userPlans)
-      .set({ status: "completed" })
-      .where(
-        and(
-          eq(userPlans.status, "active"),
-          lt(userPlans.endDate, today)
-        )
-      );
-
     return NextResponse.json({
       success: true,
-      message: `Rewards processed successfully. Credited: ${creditedCount} plans.`,
+      message: `✅ Rewards processed: ${creditedCount} plans credited, ${expiredPlans.length} plans expired.`,
       credited: creditedCount,
+      expired: expiredPlans.length,
     });
   } catch (error: any) {
-    console.error("Daily rewards cron error:", error);
+    console.error("❌ Daily rewards cron error:", error);
     return NextResponse.json(
       { error: "Failed to process daily rewards", details: error.message },
       { status: 500 }
