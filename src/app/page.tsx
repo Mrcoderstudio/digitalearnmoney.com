@@ -92,17 +92,14 @@ export default function LandingPage() {
 
       {/* Hero Section */}
       <section className="relative pt-12 pb-20 overflow-hidden border-b border-[#1e3a66]/50">
-        {/* Glow background accents */}
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-gradient-to-tr from-cyan-600/15 via-[#00D4FF]/10 to-amber-500/10 blur-[130px] -z-10 pointer-events-none rounded-full"></div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          {/* Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#0f213d] border border-[#00D4FF]/30 text-xs font-semibold text-[#00D4FF] mb-6 shadow-sm shadow-cyan-500/20 animate-pulse">
             <Sparkles className="w-3.5 h-3.5 text-[#FFD700]" />
             <span>Pakistan&apos;s Most Trusted Daily Profit Network</span>
           </div>
 
-          {/* Heading */}
           <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white max-w-4xl mx-auto leading-tight sm:leading-none">
             Invest Smart, <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00D4FF] via-cyan-300 to-[#FFD700]">
@@ -115,7 +112,6 @@ export default function LandingPage() {
             Receive automated daily income credited directly into your account with instant withdrawals to Easypaisa.
           </p>
 
-          {/* CTAs */}
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
               href="/register"
@@ -132,7 +128,6 @@ export default function LandingPage() {
             </Link>
           </div>
 
-          {/* Social Proof Stats Bar - Updated values */}
           <div className="mt-14 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
             <div className="p-4 rounded-2xl bg-[#0f213d]/80 border border-[#1e3a66] backdrop-blur-sm">
               <p className="text-2xl sm:text-3xl font-black text-white">300 PKR</p>
@@ -207,7 +202,6 @@ export default function LandingPage() {
                     </span>
                   </div>
 
-                  {/* Price */}
                   <div className="mt-4 pb-4 border-b border-[#1e3a66]">
                     <div className="flex items-baseline gap-1">
                       <span className="text-3xl font-extrabold text-white">
@@ -217,7 +211,6 @@ export default function LandingPage() {
                     <span className="text-xs text-slate-400">One-time Deposit</span>
                   </div>
 
-                  {/* Profit breakdown */}
                   <div className="mt-5 space-y-3">
                     <div className="flex items-center justify-between text-xs">
                       <span className="text-slate-300 flex items-center gap-1.5">
@@ -271,7 +264,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Interactive Profit Calculator */}
+      {/* Profit Calculator */}
       <section className="py-16 bg-[#070e1a]/80 border-y border-[#1e3a66]">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="rounded-3xl bg-gradient-to-br from-[#0f213d] to-[#132a4e] border border-[#1e3a66] p-6 sm:p-10 shadow-2xl">
@@ -285,7 +278,6 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* Plan selector pills */}
             <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 mb-8">
               {activePlans.slice(0, 10).map((p, idx) => (
                 <button
@@ -303,7 +295,6 @@ export default function LandingPage() {
               ))}
             </div>
 
-            {/* Calculated Values Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-6 rounded-2xl bg-[#0a1628]/80 border border-[#1e3a66]">
               <div className="text-center sm:text-left">
                 <p className="text-xs text-slate-400 font-medium">Daily Guaranteed Profit</p>
@@ -353,9 +344,7 @@ export default function LandingPage() {
           <h2 className="text-3xl sm:text-4xl font-extrabold text-white mt-3">
             Start Earning in 3 Simple Steps
           </h2>
-          <p className="text-slate-400 text-sm mt-2">
-            No complicated procedures. Instant onboarding designed for everyone.
-          </p>
+          <p className="text-slate-400 text-sm mt-2">No complicated procedures. Instant onboarding designed for everyone.</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -391,7 +380,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Referral System Showcase */}
+      {/* Referral System */}
       <section className="py-16 bg-gradient-to-r from-[#0f213d] via-[#132a4e] to-[#0a1628] border-y border-[#1e3a66]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
@@ -443,7 +432,6 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* Example Box */}
             <div className="rounded-3xl bg-[#0a1628]/90 border border-[#1e3a66] p-8 shadow-2xl">
               <h4 className="text-base font-bold text-white mb-4 flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-[#FFD700]" />
@@ -515,7 +503,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* WhatsApp Community CTA - Clean & Professional */}
+      {/* WhatsApp Community CTA - Updated Link */}
       <section className="py-12 bg-emerald-950/30 border-t border-emerald-500/20">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-400 mb-4">
@@ -527,7 +515,7 @@ export default function LandingPage() {
           </p>
           <div className="mt-6">
             <a
-              href="https://whatsapp.com/channel/0029VbDGJWs8fewqixXOVn2y"
+              href="https://www.whatsapp.com/channel/0029VbE1E4jC6Zvj8sD3qU0U"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs shadow-lg shadow-emerald-500/20 transition-all"
