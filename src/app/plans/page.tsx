@@ -33,17 +33,17 @@ function PlansContent() {
   const [investing, setInvesting] = useState<string | null>(null);
 
   const defaultPlans: PlanItem[] = [
-    { id: "1", name: "Plan 1", amount: "150", dailyProfit: "30", duration: 10, totalProfit: "300", isActive: true },
-    { id: "2", name: "Plan 2", amount: "350", dailyProfit: "50", duration: 15, totalProfit: "750", isActive: true },
-    { id: "3", name: "Plan 3", amount: "640", dailyProfit: "80", duration: 30, totalProfit: "2400", isActive: true },
-    { id: "4", name: "Plan 4", amount: "940", dailyProfit: "120", duration: 30, totalProfit: "3600", isActive: true },
-    { id: "5", name: "Plan 5", amount: "1700", dailyProfit: "300", duration: 30, totalProfit: "9000", isActive: true },
-    { id: "6", name: "Plan 6", amount: "3000", dailyProfit: "600", duration: 30, totalProfit: "18000", isActive: true },
-    { id: "7", name: "Plan 7", amount: "4000", dailyProfit: "740", duration: 30, totalProfit: "22200", isActive: true },
-    { id: "8", name: "Plan 8", amount: "5000", dailyProfit: "900", duration: 40, totalProfit: "36000", isActive: true },
-    { id: "9", name: "Plan 9", amount: "8000", dailyProfit: "1700", duration: 90, totalProfit: "153000", isActive: true },
-    { id: "10", name: "Plan 10", amount: "10000", dailyProfit: "2400", duration: 90, totalProfit: "216000", isActive: true },
-  ];
+  { id: "1", name: "Plan 1", amount: "300", dailyProfit: "50", duration: 10, totalProfit: "500", isActive: true },
+  { id: "2", name: "Plan 2", amount: "775", dailyProfit: "70", duration: 15, totalProfit: "1050", isActive: true },
+  { id: "3", name: "Plan 3", amount: "1600", dailyProfit: "100", duration: 20, totalProfit: "2000", isActive: true },
+  { id: "4", name: "Plan 4", amount: "3475", dailyProfit: "150", duration: 30, totalProfit: "4500", isActive: true },
+  { id: "5", name: "Plan 5", amount: "6775", dailyProfit: "200", duration: 40, totalProfit: "8000", isActive: true },
+  { id: "6", name: "Plan 6", amount: "13275", dailyProfit: "400", duration: 40, totalProfit: "16000", isActive: true },
+  { id: "7", name: "Plan 7", amount: "27375", dailyProfit: "500", duration: 60, totalProfit: "30000", isActive: true },
+  { id: "8", name: "Plan 8", amount: "50300", dailyProfit: "1600", duration: 60, totalProfit: "60000", isActive: true },
+  { id: "9", name: "Plan 9", amount: "80600", dailyProfit: "2000", duration: 60, totalProfit: "120000", isActive: true },
+  { id: "10", name: "Plan 10", amount: "100000", dailyProfit: "3000", duration: 60, totalProfit: "180000", isActive: true },
+];
 
   useEffect(() => {
     fetch("/api/plans")
