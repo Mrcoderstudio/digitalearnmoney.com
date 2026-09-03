@@ -45,26 +45,32 @@ export default function LandingPage() {
       .catch(() => {});
   }, []);
 
+  // ✅ Updated default plans (client's rates: 300 to 100,000)
   const defaultPlans: PlanItem[] = [
-    { id: "1", name: "Plan 1", amount: "140.00", dailyProfit: "10.00", duration: 30, totalProfit: "300.00" },
-    { id: "2", name: "Plan 2", amount: "300.00", dailyProfit: "20.00", duration: 30, totalProfit: "600.00" },
-    { id: "3", name: "Plan 3", amount: "500.00", dailyProfit: "40.00", duration: 30, totalProfit: "1200.00" },
-    { id: "4", name: "Plan 4", amount: "1000.00", dailyProfit: "80.00", duration: 30, totalProfit: "2400.00" },
-    { id: "5", name: "Plan 5", amount: "2000.00", dailyProfit: "170.00", duration: 30, totalProfit: "5100.00" },
-    { id: "6", name: "Plan 6", amount: "4000.00", dailyProfit: "400.00", duration: 30, totalProfit: "12000.00" },
+    { id: "1", name: "Plan 1", amount: "300", dailyProfit: "50", duration: 10, totalProfit: "500" },
+    { id: "2", name: "Plan 2", amount: "775", dailyProfit: "70", duration: 15, totalProfit: "1050" },
+    { id: "3", name: "Plan 3", amount: "1600", dailyProfit: "100", duration: 20, totalProfit: "2000" },
+    { id: "4", name: "Plan 4", amount: "3475", dailyProfit: "150", duration: 30, totalProfit: "4500" },
+    { id: "5", name: "Plan 5", amount: "6775", dailyProfit: "200", duration: 40, totalProfit: "8000" },
+    { id: "6", name: "Plan 6", amount: "13275", dailyProfit: "400", duration: 40, totalProfit: "16000" },
+    { id: "7", name: "Plan 7", amount: "27375", dailyProfit: "500", duration: 60, totalProfit: "30000" },
+    { id: "8", name: "Plan 8", amount: "50300", dailyProfit: "1600", duration: 60, totalProfit: "60000" },
+    { id: "9", name: "Plan 9", amount: "80600", dailyProfit: "2000", duration: 60, totalProfit: "120000" },
+    { id: "10", name: "Plan 10", amount: "100000", dailyProfit: "3000", duration: 60, totalProfit: "180000" },
   ];
 
   const activePlans = plansList.length > 0 ? plansList : defaultPlans;
   const currentCalcPlan = activePlans[selectedPlanIndex] || activePlans[0];
 
+  // ✅ Updated FAQ (with new min values)
   const faqs = [
     {
       q: "How does Digital Earn Money work?",
-      a: "Select an investment package starting from as low as 140 PKR. Once your deposit is confirmed via JazzCash, Easypaisa, or Bank, your plan runs for 30 days. Daily profits are credited automatically to your wallet every 24 hours.",
+      a: "Select an investment package starting from 300 PKR. Once your deposit is confirmed via Easypaisa, your plan runs for its duration. Daily profits are credited automatically to your wallet every 24 hours.",
     },
     {
       q: "What is the minimum deposit and withdrawal limit?",
-      a: "The minimum deposit is 140 PKR (Plan 1). The minimum withdrawal limit is just 30 PKR! You can withdraw your earnings directly to your JazzCash, Easypaisa, or Pakistani Bank account.",
+      a: "The minimum deposit is 300 PKR (Plan 1). The minimum withdrawal limit is 100 PKR. You can withdraw your earnings directly to your Easypaisa account.",
     },
     {
       q: "How does the referral commission system work?",
@@ -105,9 +111,8 @@ export default function LandingPage() {
           </h1>
 
           <p className="mt-6 text-base sm:text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed">
-            Start earning with packages starting from only <strong className="text-white">140 PKR</strong>.
-            Receive automated daily income credited directly into your account with instant withdrawals to
-            JazzCash, Easypaisa &amp; Raast Banks.
+            Start earning with packages starting from only <strong className="text-white">300 PKR</strong>.
+            Receive automated daily income credited directly into your account with instant withdrawals to Easypaisa.
           </p>
 
           {/* CTAs */}
@@ -123,27 +128,27 @@ export default function LandingPage() {
               href="#plans"
               className="w-full sm:w-auto px-8 py-4 rounded-xl bg-[#0f213d] border border-[#1e3a66] hover:border-[#00D4FF]/50 text-white font-semibold text-sm hover:bg-[#132a4e] transition-all flex items-center justify-center gap-2"
             >
-              <span>Explore 6 Plans</span>
+              <span>Explore Plans</span>
             </Link>
           </div>
 
-          {/* Social Proof Stats Bar */}
+          {/* Social Proof Stats Bar - Updated values */}
           <div className="mt-14 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
             <div className="p-4 rounded-2xl bg-[#0f213d]/80 border border-[#1e3a66] backdrop-blur-sm">
-              <p className="text-2xl sm:text-3xl font-black text-white">140 PKR</p>
+              <p className="text-2xl sm:text-3xl font-black text-white">300 PKR</p>
               <p className="text-xs text-slate-400 mt-1">Starting Investment</p>
             </div>
             <div className="p-4 rounded-2xl bg-[#0f213d]/80 border border-[#1e3a66] backdrop-blur-sm">
-              <p className="text-2xl sm:text-3xl font-black text-[#00D4FF]">30 PKR</p>
+              <p className="text-2xl sm:text-3xl font-black text-[#00D4FF]">100 PKR</p>
               <p className="text-xs text-slate-400 mt-1">Min. Withdrawal</p>
             </div>
             <div className="p-4 rounded-2xl bg-[#0f213d]/80 border border-[#1e3a66] backdrop-blur-sm">
-              <p className="text-2xl sm:text-3xl font-black text-[#FFD700]">12%</p>
-              <p className="text-xs text-slate-400 mt-1">Team Referral Bonus</p>
+              <p className="text-2xl sm:text-3xl font-black text-[#FFD700]">10%</p>
+              <p className="text-xs text-slate-400 mt-1">Referral Bonus</p>
             </div>
             <div className="p-4 rounded-2xl bg-[#0f213d]/80 border border-[#1e3a66] backdrop-blur-sm">
-              <p className="text-2xl sm:text-3xl font-black text-emerald-400">30 Days</p>
-              <p className="text-xs text-slate-400 mt-1">Contract Duration</p>
+              <p className="text-2xl sm:text-3xl font-black text-emerald-400">24/7</p>
+              <p className="text-xs text-slate-400 mt-1">Auto Earnings</p>
             </div>
           </div>
         </div>
@@ -159,14 +164,14 @@ export default function LandingPage() {
             Choose Your Profit Plan
           </h2>
           <p className="text-slate-400 text-sm mt-2">
-            All plans run for 30 consecutive days with daily earnings credited automatically every 24 hours.
+            All plans run for their respective durations with daily earnings credited automatically every 24 hours.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {activePlans.map((plan, idx) => {
             const isPopular = idx === 2 || idx === 3;
-            const isVip = idx === 5;
+            const isVip = idx >= 7;
             const amountNum = Number(plan.amount);
             const dailyNum = Number(plan.dailyProfit);
             const totalNum = Number(plan.totalProfit);
@@ -190,7 +195,7 @@ export default function LandingPage() {
                 )}
                 {isVip && (
                   <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-[#FFD700] text-[#0a1628] font-black text-[11px] px-3.5 py-0.5 rounded-full uppercase tracking-wider shadow">
-                    VIP Maxi Return
+                    High Yield VIP
                   </div>
                 )}
 
@@ -209,7 +214,7 @@ export default function LandingPage() {
                         PKR {Number(plan.amount).toLocaleString()}
                       </span>
                     </div>
-                    <span className="text-xs text-slate-400">One-time Deposit (30 Days)</span>
+                    <span className="text-xs text-slate-400">One-time Deposit</span>
                   </div>
 
                   {/* Profit breakdown */}
@@ -224,7 +229,7 @@ export default function LandingPage() {
                     </div>
                     <div className="flex items-center justify-between text-xs">
                       <span className="text-slate-300 flex items-center gap-1.5">
-                        <Award className="w-3.5 h-3.5 text-[#FFD700]" /> Total 30-Day Return:
+                        <Award className="w-3.5 h-3.5 text-[#FFD700]" /> Total Return:
                       </span>
                       <span className="font-bold text-[#FFD700]">
                         PKR {Number(plan.totalProfit).toLocaleString()}
@@ -240,7 +245,7 @@ export default function LandingPage() {
                       <span className="text-slate-300 flex items-center gap-1.5">
                         <ArrowUpCircle className="w-3.5 h-3.5 text-cyan-400" /> Min. Withdrawal:
                       </span>
-                      <span className="font-semibold text-slate-200">30 PKR Daily</span>
+                      <span className="font-semibold text-slate-200">100 PKR</span>
                     </div>
                   </div>
                 </div>
@@ -281,8 +286,8 @@ export default function LandingPage() {
             </div>
 
             {/* Plan selector pills */}
-            <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 mb-8">
-              {activePlans.map((p, idx) => (
+            <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 mb-8">
+              {activePlans.slice(0, 10).map((p, idx) => (
                 <button
                   key={p.id}
                   onClick={() => setSelectedPlanIndex(idx)}
@@ -308,7 +313,7 @@ export default function LandingPage() {
                 <p className="text-[11px] text-slate-500 mt-1">Credited every 24 hours</p>
               </div>
               <div className="text-center sm:text-left border-y sm:border-y-0 sm:border-x border-[#1e3a66] py-3 sm:py-0 sm:px-4">
-                <p className="text-xs text-slate-400 font-medium">30 Days Total Return</p>
+                <p className="text-xs text-slate-400 font-medium">Total Return (Duration)</p>
                 <p className="text-2xl sm:text-3xl font-extrabold text-[#FFD700] mt-1">
                   PKR {Number(currentCalcPlan.totalProfit).toLocaleString()}
                 </p>
@@ -370,7 +375,7 @@ export default function LandingPage() {
             </div>
             <h3 className="text-lg font-bold text-white mb-2">Choose Plan &amp; Deposit</h3>
             <p className="text-xs text-slate-300 leading-relaxed">
-              Send the exact plan amount via JazzCash, Easypaisa, or Raast Bank. Upload the transaction receipt screenshot.
+              Send the exact plan amount via Easypaisa. Upload the transaction receipt screenshot.
             </p>
           </div>
 
@@ -380,7 +385,7 @@ export default function LandingPage() {
             </div>
             <h3 className="text-lg font-bold text-white mb-2">Earn &amp; Withdraw Daily</h3>
             <p className="text-xs text-slate-300 leading-relaxed">
-              Your daily profit is automatically credited every 24 hours. Request cashout directly to your mobile wallet at min 30 PKR!
+              Your daily profit is automatically credited every 24 hours. Request cashout directly to your mobile wallet at min 100 PKR!
             </p>
           </div>
         </div>
@@ -395,7 +400,7 @@ export default function LandingPage() {
                 Passive Income Program
               </span>
               <h2 className="text-3xl sm:text-4xl font-extrabold text-white mt-3 leading-tight">
-                Earn Up to 12% with Our Multi-Tier Referral System
+                Earn Up to 10% with Our Multi-Tier Referral System
               </h2>
               <p className="text-slate-300 text-sm mt-4 leading-relaxed">
                 Invite your friends, colleagues, and followers to Digital Earn Money and unlock lifetime passive commissions on their package investments.
@@ -429,11 +434,11 @@ export default function LandingPage() {
 
               <div className="mt-8">
                 <Link
-                  href="/team"
+                  href="/referrals"
                   className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#00D4FF] text-[#0a1628] font-bold text-xs hover:brightness-110 transition-all"
                 >
                   <Users className="w-4 h-4" />
-                  <span>View Referral Team Page</span>
+                  <span>View Referral Team</span>
                 </Link>
               </div>
             </div>
@@ -445,22 +450,22 @@ export default function LandingPage() {
                 Commission Example
               </h4>
               <p className="text-xs text-slate-400 leading-relaxed">
-                If your direct referral deposits Plan 6 (4,000 PKR):
+                If your direct referral deposits Plan 6 (13,275 PKR):
               </p>
               <div className="mt-4 p-4 rounded-xl bg-[#0f213d] border border-cyan-500/30 flex items-center justify-between">
                 <div>
                   <p className="text-xs font-semibold text-slate-300">Level 1 Direct (10%)</p>
-                  <p className="text-[11px] text-slate-500">10% of 4,000 PKR</p>
+                  <p className="text-[11px] text-slate-500">10% of 13,275 PKR</p>
                 </div>
-                <p className="text-lg font-black text-[#00D4FF]">+ 400 PKR</p>
+                <p className="text-lg font-black text-[#00D4FF]">+ 1,327.50 PKR</p>
               </div>
 
               <div className="mt-3 p-4 rounded-xl bg-[#0f213d] border border-amber-500/30 flex items-center justify-between">
                 <div>
                   <p className="text-xs font-semibold text-slate-300">Level 2 Indirect (2%)</p>
-                  <p className="text-[11px] text-slate-500">2% of 4,000 PKR</p>
+                  <p className="text-[11px] text-slate-500">2% of 13,275 PKR</p>
                 </div>
-                <p className="text-lg font-black text-[#FFD700]">+ 80 PKR</p>
+                <p className="text-lg font-black text-[#FFD700]">+ 265.50 PKR</p>
               </div>
 
               <p className="text-[11px] text-slate-400 mt-4 leading-relaxed">
@@ -510,7 +515,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* WhatsApp Community CTA */}
+      {/* WhatsApp Community CTA - Clean & Professional */}
       <section className="py-12 bg-emerald-950/30 border-t border-emerald-500/20">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-400 mb-4">
@@ -518,16 +523,18 @@ export default function LandingPage() {
           </div>
           <h3 className="text-2xl font-extrabold text-white">Join Our Official WhatsApp Channel</h3>
           <p className="text-xs text-slate-300 max-w-xl mx-auto mt-2">
-            Get daily payment proofs, new plan updates, customer support announcements, and connect with 10,000+ active investors.
+            Daily payment proofs, new plan updates &amp; connect with 10,000+ active investors
           </p>
           <div className="mt-6">
-            <Link
-              href="/whatsapp"
+            <a
+              href="https://whatsapp.com/channel/0029VbDGJWs8fewqixXOVn2y"
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs shadow-lg shadow-emerald-500/20 transition-all"
             >
               <MessageCircle className="w-4 h-4 fill-black" />
-              <span>Join WhatsApp Channel Now</span>
-            </Link>
+              <span>Join WhatsApp Channel</span>
+            </a>
           </div>
         </div>
       </section>
