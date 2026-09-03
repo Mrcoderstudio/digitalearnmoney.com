@@ -42,8 +42,8 @@ export function DepositForm() {
     e.preventDefault();
 
     const amountNum = parseFloat(amount);
-    if (!amountNum || amountNum < 150) {
-      toast.error("Minimum deposit amount is 150 PKR");
+    if (!amountNum || amountNum < 300) {
+      toast.error("Minimum deposit amount is 300 PKR");
       return;
     }
     if (!senderName.trim()) {
@@ -127,7 +127,7 @@ export function DepositForm() {
           <span className="text-xs font-bold">📌 Important</span>
         </div>
         <ul className="list-disc list-inside text-[11px] text-slate-300 space-y-1">
-          <li>Minimum deposit: <span className="text-[#FFD700] font-bold">150 PKR</span></li>
+          <li>Minimum deposit: <span className="text-[#FFD700] font-bold">300 PKR</span></li>
           <li>Send exact amount to Easypaisa number below</li>
           <li>Keep the screenshot clear</li>
           <li>Approval usually takes 15-30 minutes</li>
@@ -141,10 +141,10 @@ export function DepositForm() {
           <input
             type="number"
             required
-            min="150"
+            min="300"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            placeholder="Enter amount (min 150)"
+            placeholder="Enter amount (min 300)"
             className="flex-1 px-3.5 py-2.5 rounded-xl bg-[#0a1628] border border-[#1e3a66] text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#00D4FF]"
           />
         </div>
@@ -157,15 +157,15 @@ export function DepositForm() {
         <div className="space-y-3">
           <div>
             <span className="text-[10px] uppercase text-slate-400 font-semibold block">Account Name</span>
-            <p className="text-sm font-bold text-white mt-0.5">Mohammed Younas</p>
+            <p className="text-sm font-bold text-white mt-0.5">Najma Hamid</p>
           </div>
           <div>
             <span className="text-[10px] uppercase text-slate-400 font-semibold block">Easypaisa Number</span>
             <div className="flex items-center justify-between mt-0.5">
-              <span className="text-sm font-mono font-black text-[#00D4FF]">03292993220</span>
+              <span className="text-sm font-mono font-black text-[#00D4FF]">03030050877</span>
               <button
                 type="button"
-                onClick={() => handleCopy("03292993220")}
+                onClick={() => handleCopy("03030050877")}
                 className="p-1.5 rounded-lg bg-[#0a1628] hover:bg-[#132a4e] text-slate-300 transition-colors"
               >
                 {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
