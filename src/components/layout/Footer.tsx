@@ -74,10 +74,10 @@ export default function Footer() {
                 <span className="text-slate-500">Working Hours: 24/7 Automated</span>
               </li>
               <li>
-                <span className="text-slate-500">Min. Deposit: 140 PKR</span>
+                <span className="text-slate-500">Min. Deposit:300 PKR</span>
               </li>
               <li>
-                <span className="text-slate-500">Min. Withdrawal: 30 PKR</span>
+                <span className="text-slate-500">Min. Withdrawal:100 PKR</span>
               </li>
             </ul>
           </div>
