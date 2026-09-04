@@ -31,7 +31,7 @@ export default async function WithdrawalPage() {
       <div>
         <h1 className="text-2xl sm:text-3xl font-extrabold text-white">Withdraw Funds</h1>
         <p className="text-xs text-slate-400 mt-1">
-          Withdraw your earnings to your Easypaisa account. Minimum withdrawal is <span className="text-[#FFD700] font-bold">{minWithdrawal} PKR</span>.
+          Withdraw your earnings to your preferred method. Minimum withdrawal is <span className="text-[#FFD700] font-bold">{minWithdrawal} PKR</span>.
         </p>
       </div>
 
