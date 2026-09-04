@@ -16,7 +16,7 @@ export function WithdrawalForm({ balance, minWithdrawal }: WithdrawalFormProps) 
   const [method, setMethod] = useState("easypaisa");
   const [accountHolder, setAccountHolder] = useState("");
   const [accountNumber, setAccountNumber] = useState("");
-  const [bankName, setBankName] = useState(""); // for All Banks
+  const [bankName, setBankName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
