@@ -6,14 +6,14 @@ import { toast } from "react-hot-toast";
 import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
 
 interface WithdrawalFormProps {
-  balance: string;
+  balance: number;
   minWithdrawal: number;
 }
 
 export function WithdrawalForm({ balance, minWithdrawal }: WithdrawalFormProps) {
   const router = useRouter();
   const [amount, setAmount] = useState("");
-  const [method, setMethod] = useState("easypaisa"); // only easypaisa
+  const [method, setMethod] = useState("easypaisa");
   const [accountHolder, setAccountHolder] = useState("");
   const [accountNumber, setAccountNumber] = useState("");
   const [loading, setLoading] = useState(false);
@@ -22,13 +22,15 @@ export function WithdrawalForm({ balance, minWithdrawal }: WithdrawalFormProps) 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
+    setSuccess("");
 
     const amountNum = parseFloat(amount);
-    if (!amountNum || amountNum < minWithdrawal) {
-      toast.error(`Minimum withdrawal amount is ${minWithdrawal} PKR`);
+    if (isNaN(amountNum) || amountNum < minWithdrawal) {
+      toast.error(`Minimum withdrawal is ${minWithdrawal} PKR`);
       return;
     }
-    if (amountNum > parseFloat(balance)) {
+    if (amountNum > balance) {
       toast.error("Insufficient balance");
       return;
     }
@@ -42,9 +44,6 @@ export function WithdrawalForm({ balance, minWithdrawal }: WithdrawalFormProps) 
     }
 
     setLoading(true);
-    setError("");
-    setSuccess("");
-
     try {
       const res = await fetch("/api/withdrawal", {
         method: "POST",
@@ -58,21 +57,18 @@ export function WithdrawalForm({ balance, minWithdrawal }: WithdrawalFormProps) 
           },
         }),
       });
-
       const data = await res.json();
-
       if (!res.ok) {
-        toast.error(data.error || "Withdrawal request failed");
+        toast.error(data.error || "Withdrawal failed");
         setLoading(false);
         return;
       }
-
-      toast.success("Withdrawal request submitted successfully! Waiting for admin approval.");
+      toast.success("Withdrawal request submitted!");
+      setSuccess("Request submitted successfully!");
       setAmount("");
       setAccountHolder("");
       setAccountNumber("");
       setLoading(false);
-
       setTimeout(() => {
         router.push("/dashboard");
         router.refresh();
@@ -110,7 +106,7 @@ export function WithdrawalForm({ balance, minWithdrawal }: WithdrawalFormProps) 
             min={minWithdrawal}
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            placeholder={`Enter amount (min ${minWithdrawal})`}
+            placeholder={`Min ${minWithdrawal} PKR`}
             className="flex-1 px-3.5 py-2.5 rounded-xl bg-[#0a1628] border border-[#1e3a66] text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#00D4FF]"
           />
         </div>
@@ -119,15 +115,12 @@ export function WithdrawalForm({ balance, minWithdrawal }: WithdrawalFormProps) 
         </p>
       </div>
 
-      {/* Only Easypaisa */}
       <div>
         <label className="block text-xs font-bold text-slate-200 mb-2">
           2. Select Withdrawal Method
         </label>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-          {[
-            { id: "easypaisa", label: "Easypaisa", icon: "📱" },
-          ].map((m) => (
+          {[{ id: "easypaisa", label: "Easypaisa", icon: "📱" }].map((m) => (
             <button
               key={m.id}
               type="button"
@@ -147,11 +140,8 @@ export function WithdrawalForm({ balance, minWithdrawal }: WithdrawalFormProps) 
         </div>
       </div>
 
-      {/* Account Details */}
       <div className="space-y-4 pt-2 border-t border-[#1e3a66]">
-        <label className="block text-xs font-bold text-slate-200">
-          3. Enter Account Details
-        </label>
+        <label className="block text-xs font-bold text-slate-200">3. Enter Account Details</label>
 
         <div>
           <label className="block text-[11px] font-semibold text-slate-400 mb-1">
@@ -193,9 +183,7 @@ export function WithdrawalForm({ balance, minWithdrawal }: WithdrawalFormProps) 
             <span>Submitting...</span>
           </>
         ) : (
-          <>
-            <span>Submit Withdrawal Request</span>
-          </>
+          "Submit Withdrawal Request"
         )}
       </button>
     </form>
