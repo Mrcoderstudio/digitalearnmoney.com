@@ -5,49 +5,39 @@ import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
 
-interface Settings {
-  minWithdrawal: string;
-}
-
 interface WithdrawalFormProps {
-  settings: Settings;
+  balance: string;
+  minWithdrawal: number;
 }
 
-export function WithdrawalForm({ settings }: WithdrawalFormProps) {
+export function WithdrawalForm({ balance, minWithdrawal }: WithdrawalFormProps) {
   const router = useRouter();
   const [amount, setAmount] = useState("");
-  const [method, setMethod] = useState("easypaisa");
+  const [method, setMethod] = useState("easypaisa"); // only easypaisa
   const [accountHolder, setAccountHolder] = useState("");
   const [accountNumber, setAccountNumber] = useState("");
-  const [bankName, setBankName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-
-  const minWithdrawal = Number(settings.minWithdrawal) || 30;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const amountNum = parseFloat(amount);
-
     if (!amountNum || amountNum < minWithdrawal) {
       toast.error(`Minimum withdrawal amount is ${minWithdrawal} PKR`);
       return;
     }
-
+    if (amountNum > parseFloat(balance)) {
+      toast.error("Insufficient balance");
+      return;
+    }
     if (!accountHolder.trim()) {
       toast.error("Please enter account holder name");
       return;
     }
-
     if (!accountNumber.trim()) {
       toast.error("Please enter account number");
-      return;
-    }
-
-    if (method === "bank" && !bankName.trim()) {
-      toast.error("Please enter bank name");
       return;
     }
 
@@ -65,7 +55,6 @@ export function WithdrawalForm({ settings }: WithdrawalFormProps) {
           accountDetails: {
             accountHolder: accountHolder.trim(),
             accountNumber: accountNumber.trim(),
-            bankName: bankName.trim(),
           },
         }),
       });
@@ -82,7 +71,6 @@ export function WithdrawalForm({ settings }: WithdrawalFormProps) {
       setAmount("");
       setAccountHolder("");
       setAccountNumber("");
-      setBankName("");
       setLoading(false);
 
       setTimeout(() => {
@@ -97,15 +85,12 @@ export function WithdrawalForm({ settings }: WithdrawalFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="p-6 sm:p-8 rounded-3xl bg-[#0f213d] border border-[#1e3a66] space-y-6 shadow-xl">
-      {/* Error Message */}
       {error && (
         <div className="p-4 rounded-2xl bg-red-950/70 border border-red-500/40 flex items-center gap-3 text-xs text-red-300">
           <AlertCircle className="w-5 h-5 text-red-400 shrink-0" />
           <span>{error}</span>
         </div>
       )}
-
-      {/* Success Message */}
       {success && (
         <div className="p-4 rounded-2xl bg-emerald-950/70 border border-emerald-500/40 flex items-center gap-3 text-xs text-emerald-300">
           <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
@@ -113,7 +98,6 @@ export function WithdrawalForm({ settings }: WithdrawalFormProps) {
         </div>
       )}
 
-      {/* Step 1: Enter Amount */}
       <div>
         <label className="block text-xs font-bold text-slate-200 mb-2">
           1. Enter Withdrawal Amount
@@ -135,7 +119,7 @@ export function WithdrawalForm({ settings }: WithdrawalFormProps) {
         </p>
       </div>
 
-      {/* Step 2: Select Method */}
+      {/* Only Easypaisa */}
       <div>
         <label className="block text-xs font-bold text-slate-200 mb-2">
           2. Select Withdrawal Method
@@ -143,10 +127,6 @@ export function WithdrawalForm({ settings }: WithdrawalFormProps) {
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
           {[
             { id: "easypaisa", label: "Easypaisa", icon: "📱" },
-            { id: "jazzcash", label: "JazzCash", icon: "📱" },
-            { id: "opay", label: "OPay", icon: "💳" },
-            { id: "sadapay", label: "SadaPay", icon: "💳" },
-            { id: "bank", label: "Bank", icon: "🏦" },
           ].map((m) => (
             <button
               key={m.id}
@@ -167,7 +147,7 @@ export function WithdrawalForm({ settings }: WithdrawalFormProps) {
         </div>
       </div>
 
-      {/* Step 3: Account Details */}
+      {/* Account Details */}
       <div className="space-y-4 pt-2 border-t border-[#1e3a66]">
         <label className="block text-xs font-bold text-slate-200">
           3. Enter Account Details
@@ -200,22 +180,6 @@ export function WithdrawalForm({ settings }: WithdrawalFormProps) {
             className="w-full px-3.5 py-2.5 rounded-xl bg-[#0a1628] border border-[#1e3a66] text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#00D4FF]"
           />
         </div>
-
-        {method === "bank" && (
-          <div>
-            <label className="block text-[11px] font-semibold text-slate-400 mb-1">
-              Bank Name
-            </label>
-            <input
-              type="text"
-              required
-              value={bankName}
-              onChange={(e) => setBankName(e.target.value)}
-              placeholder="e.g. Meezan Bank"
-              className="w-full px-3.5 py-2.5 rounded-xl bg-[#0a1628] border border-[#1e3a66] text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#00D4FF]"
-            />
-          </div>
-        )}
       </div>
 
       <button
