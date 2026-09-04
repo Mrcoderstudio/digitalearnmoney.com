@@ -1,13 +1,13 @@
 import { getSession } from "@/lib/auth";
-import { getSettings } from "@/lib/data";
 import { WithdrawalForm } from "./WithdrawalForm";
 import { UserShell } from "@/components/user/UserShell";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
-import { users } from "@/db/schema";
+import { users, settings } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0; // ✅ No cache
 
 export default async function WithdrawalPage() {
   const session = await getSession();
@@ -15,16 +15,23 @@ export default async function WithdrawalPage() {
     redirect("/login");
   }
 
-  // ✅ Fetch user balance from database
+  // ✅ Fetch user balance
   const [user] = await db
     .select({ balance: users.balance })
     .from(users)
     .where(eq(users.id, session.user.id))
     .limit(1);
 
-  const settings = await getSettings();
-  const minWithdrawal = Number(settings.minWithdrawal) || 100;
+  // ✅ Fetch fresh settings directly from database (no cache)
+  const [settingsData] = await db
+    .select({ minWithdrawal: settings.minWithdrawal })
+    .from(settings)
+    .limit(1);
+
+  const minWithdrawal = Number(settingsData?.minWithdrawal) || 100;
   const balance = Number(user?.balance) || 0;
+
+  console.log("🔍 Fresh from DB - minWithdrawal:", minWithdrawal); // Vercel logs mein check karo
 
   const content = (
     <div className="max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
