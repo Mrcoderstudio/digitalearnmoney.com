@@ -3,6 +3,9 @@ import { getSettings } from "@/lib/data";
 import { WithdrawalForm } from "./WithdrawalForm";
 import { UserShell } from "@/components/user/UserShell";
 import { redirect } from "next/navigation";
+import { db } from "@/db";
+import { users } from "@/db/schema";
+import { eq } from "drizzle-orm";
 
 export const dynamic = "force-dynamic";
 
@@ -12,9 +15,16 @@ export default async function WithdrawalPage() {
     redirect("/login");
   }
 
+  // ✅ Fetch user balance from database
+  const [user] = await db
+    .select({ balance: users.balance })
+    .from(users)
+    .where(eq(users.id, session.user.id))
+    .limit(1);
+
   const settings = await getSettings();
   const minWithdrawal = Number(settings.minWithdrawal) || 100;
-  const balance = Number(session.user.balance) || 0;
+  const balance = Number(user?.balance) || 0;
 
   const content = (
     <div className="max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
@@ -27,7 +37,6 @@ export default async function WithdrawalPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
-          {/* ✅ Fixed: balance + minWithdrawal pass karo */}
           <WithdrawalForm balance={balance} minWithdrawal={minWithdrawal} />
         </div>
         <div className="space-y-6">
