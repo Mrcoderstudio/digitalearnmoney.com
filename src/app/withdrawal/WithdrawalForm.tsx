@@ -16,6 +16,7 @@ export function WithdrawalForm({ balance, minWithdrawal }: WithdrawalFormProps) 
   const [method, setMethod] = useState("easypaisa");
   const [accountHolder, setAccountHolder] = useState("");
   const [accountNumber, setAccountNumber] = useState("");
+  const [bankName, setBankName] = useState(""); // for All Banks
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -42,20 +43,29 @@ export function WithdrawalForm({ balance, minWithdrawal }: WithdrawalFormProps) 
       toast.error("Please enter account number");
       return;
     }
+    if (method === "bank" && !bankName.trim()) {
+      toast.error("Please enter bank name");
+      return;
+    }
 
     setLoading(true);
     try {
+      const payload: any = {
+        amount: amountNum,
+        method,
+        accountDetails: {
+          accountHolder: accountHolder.trim(),
+          accountNumber: accountNumber.trim(),
+        },
+      };
+      if (method === "bank") {
+        payload.accountDetails.bankName = bankName.trim();
+      }
+
       const res = await fetch("/api/withdrawal", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          amount: amountNum,
-          method: method,
-          accountDetails: {
-            accountHolder: accountHolder.trim(),
-            accountNumber: accountNumber.trim(),
-          },
-        }),
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -68,6 +78,7 @@ export function WithdrawalForm({ balance, minWithdrawal }: WithdrawalFormProps) 
       setAmount("");
       setAccountHolder("");
       setAccountNumber("");
+      setBankName("");
       setLoading(false);
       setTimeout(() => {
         router.push("/dashboard");
@@ -120,7 +131,11 @@ export function WithdrawalForm({ balance, minWithdrawal }: WithdrawalFormProps) 
           2. Select Withdrawal Method
         </label>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-          {[{ id: "easypaisa", label: "Easypaisa", icon: "📱" }].map((m) => (
+          {[
+            { id: "easypaisa", label: "Easypaisa", icon: "📱" },
+            { id: "jazzcash", label: "JazzCash", icon: "📱" },
+            { id: "bank", label: "All Banks", icon: "🏦" },
+          ].map((m) => (
             <button
               key={m.id}
               type="button"
@@ -170,6 +185,22 @@ export function WithdrawalForm({ balance, minWithdrawal }: WithdrawalFormProps) 
             className="w-full px-3.5 py-2.5 rounded-xl bg-[#0a1628] border border-[#1e3a66] text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#00D4FF]"
           />
         </div>
+
+        {method === "bank" && (
+          <div>
+            <label className="block text-[11px] font-semibold text-slate-400 mb-1">
+              Bank Name
+            </label>
+            <input
+              type="text"
+              required
+              value={bankName}
+              onChange={(e) => setBankName(e.target.value)}
+              placeholder="e.g. Meezan Bank"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-[#0a1628] border border-[#1e3a66] text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#00D4FF]"
+            />
+          </div>
+        )}
       </div>
 
       <button
