@@ -13,7 +13,7 @@ export default async function WithdrawalPage() {
   }
 
   const settings = await getSettings();
-  const minWithdrawal = Number(settings.minWithdrawal) || 100; // fallback
+  const minWithdrawal = Number(settings.minWithdrawal) || 100;
 
   const content = (
     <div className="max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
